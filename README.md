@@ -23,18 +23,23 @@
 - `POST /group-reservations/{id}/submit` — підтвердження консолідованого pre-order, замовлення отримує статус
   `SubmittedByCustomer`, група — `Submitted` (L2);
 - `DELETE /guest/groups/{id}/sessions/{sessionId}` — видалення учасника з перерахунком суми (L3);
+- **додатково:** до `POST /group-reservations/{id}/submit` можна передати необов'язковий `comment` (до 300 символів) —
+  побажання для ресторану («без горіхів»). Коментар зберігається в замовленні й повертається в `GET /orders/{reservationId}`,
+  тож його бачить офіціант; задовгий коментар відхиляється з `400`;
 - юніт-тести сервісів, CI збирає і тестує бекенд (`backend-ci.yml`).
 
 **Frontend (Angular)** — сторінка групового замовлення власника (`/reservations/{id}/group-order`):
 учасники з їхніми стравами й сумами, відмітка «Submitted / Still choosing», кнопка **Remove Guest** з підтвердженням,
 консолідований список, **Submit Pre-Order**, статус «Collecting pre-orders» / «Sent to Restaurant».
+**Коментар до замовлення:** у діалозі підтвердження є поле «Comment for the restaurant (optional)» (до 300 символів);
+офіціант бачить цей коментар на сторінці pre-order («Customer's comment: …»).
 
 **Розгортання без AWS** — бекенд працює в режимі `LOCAL_MODE` (дані в пам'яті, власна авторизація на JWT),
 фронтенд публікується на GitHub Pages. Опис: [DEPLOY-FREE.md](DEPLOY-FREE.md). Початкова AWS-інструкція збережена
 в [DEPLOY-AWS.md](DEPLOY-AWS.md).
 
 **Автотести (AQA, напрям 1 — груповий pre-order)** — [aqa/restaurant-aqa-framework](aqa/restaurant-aqa-framework/README.md):
-C# + Reqnroll (Gherkin) + TUnit + Playwright, патерн Screenplay. 34 сценарії: API (авторизація, валідація, підготовка
+C# + Reqnroll (Gherkin) + TUnit + Playwright, патерн Screenplay. 36 сценаріїв: API (авторизація, валідація, підготовка
 даних) і UI (основні сценарії власника). Кожен тест створює власні дані й прибирає їх після себе.
 Запускаються в GitHub Actions (`AQA Tests`), звіти й трейси зберігаються як артефакти.
 
@@ -59,6 +64,9 @@ C# + Reqnroll (Gherkin) + TUnit + Playwright, патерн Screenplay. 34 сце
 
 ### Підтвердження pre-order
 ![Pre-order надіслано в ресторан](docs/screenshots/03-preorder-sent.png)
+
+### Коментар до замовлення для ресторану
+![Діалог підтвердження з полем коментаря](docs/screenshots/06-submit-comment.png)
 
 ### Сторінка гостя
 ![Гість збирає замовлення](docs/screenshots/04-guest-menu.png)
