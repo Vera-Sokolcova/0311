@@ -64,8 +64,17 @@ public sealed class InMemoryDishRepository(LocalDb db) : IDishRepository
     public Task<IEnumerable<Dish>> GetDishesByIdsAsync(IEnumerable<string> dishIds) =>
         T.R<IEnumerable<Dish>>(dishIds.Distinct().Select(i => db.Dishes.GetValueOrDefault(i)).OfType<Dish>().ToList());
 
-    public Task<IEnumerable<Dish>> GetDishesByLocationIdAsync(string locationId) =>
-        T.R<IEnumerable<Dish>>(db.Dishes.Values.Where(d => d.LocationId == locationId).ToList());
+    // Same rule as the DynamoDB repository: the location's specialty dishes plus dishes bound to it,
+    // and the whole menu when the location has neither.
+    public Task<IEnumerable<Dish>> GetDishesByLocationIdAsync(string locationId)
+    {
+        var specialtyIds = db.Locations.GetValueOrDefault(locationId)?.SpecialtyDishIds ?? [];
+        var dishes = db.Dishes.Values
+            .Where(d => d.LocationId == locationId || specialtyIds.Contains(d.Id))
+            .ToList();
+
+        return T.R<IEnumerable<Dish>>(dishes.Count > 0 ? dishes : db.Dishes.Values.ToList());
+    }
 
     public Task SaveDishAsync(Dish dish) { db.Dishes[dish.Id] = dish; return T.Done; }
     public Task DeleteDishAsync(Dish dish) { db.Dishes.TryRemove(dish.Id, out _); return T.Done; }

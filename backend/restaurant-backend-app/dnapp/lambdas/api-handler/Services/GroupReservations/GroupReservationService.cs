@@ -41,6 +41,30 @@ public class GroupReservationService(
         if (joinedGuestsCount + 1 >= reservation.GuestCount)
             throw new GuestLimitExceededException();
 
+        return await BuildGroupReservationResponseAsync(groupReservation, reservation);
+    }
+
+    /// <summary>
+    /// Invite details for the reservation owner. Unlike the guest lookup, it does not reject a full or
+    /// already submitted group: the owner needs the group id and header data at any stage.
+    /// </summary>
+    public async Task<GetGroupReservationResponse> GetGroupReservationForOwnerAsync(string token, string userId)
+    {
+        GroupReservation groupReservation = await groupReservationRepository.GetGroupReservationByTokenAsync(token)
+            ?? throw new GroupReservationNotFoundException();
+
+        Reservation reservation = await reservationRepository.GetReservationByIdAsync(groupReservation.ReservationId)
+            ?? throw new ValidationException("Associated reservation not found.");
+
+        if (reservation.CustomerId != userId)
+            return await GetGroupReservationByTokenAsync(token);
+
+        return await BuildGroupReservationResponseAsync(groupReservation, reservation);
+    }
+
+    private async Task<GetGroupReservationResponse> BuildGroupReservationResponseAsync(
+        GroupReservation groupReservation, Reservation reservation)
+    {
         Table table = await tableRepository.GetTableAsync(reservation.TableId)
             ?? throw new InvalidOperationException("Associated table not found.");
 
@@ -119,6 +143,24 @@ public class GroupReservationService(
         groupReservation.Status = GroupReservationStatus.Closed;
 
         await groupReservationRepository.SaveGroupReservationAsync(groupReservation);
+    }
+
+    /// <summary>Invite token for the owner's own group page: available at any stage of the group.</summary>
+    public async Task<GetGroupInviteTokenResponse> GetGroupReservationInviteTokenForOwnerAsync(string reservationId, string userId)
+    {
+        var reservation = await reservationRepository.GetReservationByIdAsync(reservationId)
+            ?? throw new ReservationNotFoundException($"Reservation {reservationId} was not found.");
+
+        if (reservation.CustomerId != userId)
+            return await GetGroupReservationInviteTokenAsync(reservationId);
+
+        if (reservation.GuestCount < 2)
+            throw new ValidationException("Retrieving invitation token for the reservation with only one guest is not permitted.");
+
+        GroupReservation groupReservation = await groupReservationRepository.GetByReservationIdAsync(reservationId)
+            ?? throw new GroupReservationNotFoundException();
+
+        return new GetGroupInviteTokenResponse(groupReservation.ReservationToken);
     }
 
     public async Task<GetGroupInviteTokenResponse> GetGroupReservationInviteTokenAsync(string reservationId)

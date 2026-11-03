@@ -18,7 +18,10 @@ public class GetInviteTokenHandler(IGroupReservationService service) : IApiReque
 
         try
         {
-            GetGroupInviteTokenResponse result = await service.GetGroupReservationInviteTokenAsync(reservationId);
+            string? userId = request.RequestContext is null ? null : UserContextHelper.GetAuthenticatedUserId(request);
+            GetGroupInviteTokenResponse result = userId is null
+                ? await service.GetGroupReservationInviteTokenAsync(reservationId)
+                : await service.GetGroupReservationInviteTokenForOwnerAsync(reservationId, userId);
             return ResponseBuilder.CreateJsonResponse(200, result);
         }
         catch (ReservationNotFoundException exception)

@@ -16,7 +16,10 @@ public class GetGroupReservationHandler(IGroupReservationService groupReservatio
 
         try
         {
-            var result = await groupReservationService.GetGroupReservationByTokenAsync(token);
+            string? userId = request.RequestContext is null ? null : UserContextHelper.GetAuthenticatedUserId(request);
+            var result = userId is null
+                ? await groupReservationService.GetGroupReservationByTokenAsync(token)
+                : await groupReservationService.GetGroupReservationForOwnerAsync(token, userId);
             return ResponseBuilder.CreateSuccessResponse(result);
         }
         catch(GroupReservationNotFoundException exception)
