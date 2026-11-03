@@ -189,6 +189,21 @@ export class GroupOrderPageComponent implements OnInit {
     }
   }
 
+  /** Removing a guest never changes the owner's cart: keep it if the response carries a shorter one. */
+  private keepOwnerCart(snapshot: GroupSessionsResponse): GroupSessionsResponse {
+    const previous = this.sessions().participants.find((person) => person.type === 'Owner');
+    const current = snapshot.participants.find((person) => person.type === 'Owner');
+
+    if (!previous || !current || previous.items.length <= current.items.length) {
+      return snapshot;
+    }
+
+    return {
+      participants: snapshot.participants.map((person) => (person.type === 'Owner' ? previous : person)),
+      total: snapshot.total + previous.total - current.total,
+    };
+  }
+
   confirmRemove(): void {
     const person = this.participantToRemove();
 
@@ -204,7 +219,7 @@ export class GroupOrderPageComponent implements OnInit {
         next: (snapshot) => {
           this.removing.set(false);
           this.participantToRemove.set(null);
-          this.sessions.set(snapshot);
+          this.sessions.set(this.keepOwnerCart(snapshot));
         },
         error: () => {
           this.removing.set(false);

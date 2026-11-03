@@ -105,6 +105,53 @@ public class GroupPreOrderServiceTests
     }
 
     [Fact]
+    public async Task GetGroupSessions_OwnerRegularOrderIsShownInOwnerCart()
+    {
+        var owner = MakeSession("own", false);
+        owner.IsOwnerSession = true;
+        SetupSessions(owner, MakeSession("s1", true, ("dish2", 1)));
+        _orders.Setup(r => r.GetOrderByReservationIdAsync(ReservationId)).ReturnsAsync(new Order
+        {
+            OrderId = "order-1",
+            CustomerId = OwnerId,
+            ReservationId = ReservationId,
+            ReservationAddress = "Address",
+            ReservationTime = "Time",
+            Dishes = [new OrderItem { DishId = "dish1", Quantity = 2 }],
+        });
+
+        var result = await _service.GetGroupSessionsAsync(OwnerId, GroupId);
+
+        var ownerParticipant = result.Participants.First(p => p.Type == ParticipantType.Owner);
+        Assert.Equal(360, ownerParticipant.Total);
+        Assert.True(ownerParticipant.IsSubmitted);
+        Assert.Equal(580, result.Total);
+    }
+
+    [Fact]
+    public async Task GetGroupSessions_AfterSubmitGuestDishesAreNotCountedInOwnerCart()
+    {
+        _group.Status = GroupReservationStatus.Submitted;
+        var owner = MakeSession("own", false);
+        owner.IsOwnerSession = true;
+        SetupSessions(owner, MakeSession("s1", true, ("dish2", 1)));
+        _orders.Setup(r => r.GetOrderByReservationIdAsync(ReservationId)).ReturnsAsync(new Order
+        {
+            OrderId = "order-1",
+            CustomerId = OwnerId,
+            ReservationId = ReservationId,
+            ReservationAddress = "Address",
+            ReservationTime = "Time",
+            Dishes = [new OrderItem { DishId = "dish1", Quantity = 2 }, new OrderItem { DishId = "dish2", Quantity = 1 }],
+        });
+
+        var result = await _service.GetGroupSessionsAsync(OwnerId, GroupId);
+
+        Assert.Equal(360, result.Participants.First(p => p.Type == ParticipantType.Owner).Total);
+        Assert.Equal(580, result.Total);
+    }
+
+    [Fact]
     public async Task GetGroupSessions_NotOwner_Throws()
     {
         SetupSessions();

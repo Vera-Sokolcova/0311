@@ -33,10 +33,12 @@ public class GroupPreOrderService(
         EnsureOwner(reservation, userId);
 
         List<GuestSession> sessions = await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId);
-        var dishesById = await LoadDishesAsync(sessions);
+        Order? order = await orderRepository.GetOrderByReservationIdAsync(reservation.Id);
+        List<OrderItem> ownerOrderItems = GetOwnerOrderItems(order, sessions, group.Status);
+        var dishesById = await LoadDishesAsync(sessions, ownerOrderItems);
         string ownerName = await GetOwnerNameAsync(reservation);
 
-        return GroupSnapshotMapper.ToSnapshot(sessions, dishesById, ownerName);
+        return GroupSnapshotMapper.ToSnapshot(sessions, dishesById, ownerName, ownerOrderItems);
     }
 
     public async Task<OwnerGuestSessionResponse> GetOwnerGuestSessionIdAsync(string userId, string reservationId)
@@ -135,10 +137,40 @@ public class GroupPreOrderService(
             throw new ActionForbiddenException("Only the reservation owner can perform this action.");
     }
 
-    private async Task<Dictionary<string, Dish>> LoadDishesAsync(IEnumerable<GuestSession> sessions)
+    /// <summary>
+    /// The owner's own dishes: the reservation's regular order. After the group is submitted the order also
+    /// holds the guests' dishes (they are merged into it), so those quantities are taken away again.
+    /// </summary>
+    private static List<OrderItem> GetOwnerOrderItems(Order? order, IEnumerable<GuestSession> sessions, GroupReservationStatus groupStatus)
+    {
+        if (order?.Dishes is null)
+            return [];
+
+        Dictionary<string, int> remaining = order.Dishes
+            .Where(d => d.Quantity > 0)
+            .GroupBy(d => d.DishId)
+            .ToDictionary(g => g.Key, g => g.Sum(d => d.Quantity));
+
+        if (groupStatus == GroupReservationStatus.Submitted)
+        {
+            foreach (OrderItem guestDish in sessions.Where(s => !s.IsOwnerSession && s.IsSubmitted).SelectMany(s => s.Dishes ?? []))
+            {
+                if (remaining.TryGetValue(guestDish.DishId, out int quantity))
+                    remaining[guestDish.DishId] = quantity - guestDish.Quantity;
+            }
+        }
+
+        return remaining
+            .Where(pair => pair.Value > 0)
+            .Select(pair => new OrderItem { DishId = pair.Key, Quantity = pair.Value, State = OrderItemState.Pending })
+            .ToList();
+    }
+
+    private async Task<Dictionary<string, Dish>> LoadDishesAsync(IEnumerable<GuestSession> sessions, IEnumerable<OrderItem> extraItems)
     {
         string[] dishIds = sessions
             .SelectMany(s => s.Dishes ?? [])
+            .Concat(extraItems)
             .Select(d => d.DishId)
             .Distinct()
             .ToArray();
