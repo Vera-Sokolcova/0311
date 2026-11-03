@@ -1,0 +1,9 @@
+# Альтернатива GitHub Pages: Netlify (free, без картки).
+[build]
+  command = "npx ng build --configuration development"
+  publish = "dist/restaurant-frontend-app/browser"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

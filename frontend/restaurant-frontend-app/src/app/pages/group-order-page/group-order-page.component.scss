@@ -1,0 +1,139 @@
+@use 'app/shared/styles/abstracts/colors' as color;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  background: color.$neutral-100;
+}
+
+.title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.badge {
+  padding: 2px 12px;
+  border-radius: 12px;
+  background: color.$neutral-200;
+  font-size: 12px;
+
+  &--sent {
+    background: color.$orange-100;
+    color: color.$orange-600;
+  }
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 8px 0 0;
+  padding: 0 0 12px;
+  border-bottom: 1px solid color.$green-150;
+  list-style: none;
+}
+
+.state,
+.notice {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.state {
+  background: color.$neutral-0;
+}
+
+.notice {
+  background: color.$orange-30;
+  border: 1px solid color.$orange-100;
+}
+
+.sync-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.participants {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.consolidated {
+  padding: 16px;
+  border-radius: 8px;
+  background: color.$neutral-0;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 2px solid color.$green-100;
+}
+
+.grand-total {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 24px;
+
+  .amount {
+    color: color.$green-600;
+    font-weight: 600;
+  }
+}
+
+.submit {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.button--danger {
+  border: 1px solid color.$red-400;
+  background: color.$neutral-0;
+  color: color.$red-400;
+}

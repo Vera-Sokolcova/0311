@@ -1,0 +1,11 @@
+# Backend without AWS: ASP.NET Core host around the Lambda handlers, in-memory data.
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY backend/restaurant-backend-app/dnapp ./dnapp
+RUN dotnet publish dnapp/local-host/LocalHost.csproj -c Release -o /out
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=build /out .
+ENV LOCAL_MODE=true
+ENTRYPOINT ["dotnet", "LocalHost.dll"]

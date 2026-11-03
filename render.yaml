@@ -1,0 +1,14 @@
+# Free web service on Render (Blueprint). Sleeps after ~15 min idle; first request wakes it (~30-60 s).
+services:
+  - type: web
+    name: restaurant-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.backend
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: LOCAL_MODE
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
