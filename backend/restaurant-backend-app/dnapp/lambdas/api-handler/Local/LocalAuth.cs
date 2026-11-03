@@ -43,6 +43,8 @@ public sealed class LocalAuth
 
         Seed(LocalDb.OwnerSub, "owner@example.com", "Owner123!", "Olena", "Owner", "Customer");
         Seed(LocalDb.WaiterSub, "waiter@example.com", "Waiter123!", "Wiktor", "Waiter", "Waiter");
+        Seed(LocalDb.Waiter2Sub, "waiter2@example.com", "Waiter123!", "Nino", "Waiter", "Waiter");
+        Seed(LocalDb.Waiter3Sub, "waiter3@example.com", "Waiter123!", "Giorgi", "Waiter", "Waiter");
     }
 
     private void Seed(string sub, string email, string password, string first, string last, string group)

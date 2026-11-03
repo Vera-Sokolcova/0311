@@ -14,6 +14,8 @@ public sealed class LocalDb
 {
     public const string OwnerSub = "11111111-1111-1111-1111-111111111111";
     public const string WaiterSub = "22222222-2222-2222-2222-222222222222";
+    public const string Waiter2Sub = "33333333-3333-3333-3333-333333333333";
+    public const string Waiter3Sub = "44444444-4444-4444-4444-444444444444";
     public const string LocationId = "loc-1";
     public const string TableId = "table-1";
     public const string ReservationId = "demo-reservation";
@@ -76,6 +78,8 @@ public sealed class LocalDb
         AddTables("loc-3", "loc3-table-", 20);
 
         Waiters[WaiterSub] = new WaiterListItem { UserId = WaiterSub, LocationId = LocationId, CreatedAt = DateTime.UtcNow };
+        Waiters[Waiter2Sub] = new WaiterListItem { UserId = Waiter2Sub, LocationId = "loc-2", CreatedAt = DateTime.UtcNow };
+        Waiters[Waiter3Sub] = new WaiterListItem { UserId = Waiter3Sub, LocationId = "loc-3", CreatedAt = DateTime.UtcNow };
 
         var start = DateTime.UtcNow.Date.AddDays(1).AddHours(17);
         Reservations[ReservationId] = new Reservation
