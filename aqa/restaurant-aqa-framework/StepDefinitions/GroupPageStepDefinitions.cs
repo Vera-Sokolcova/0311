@@ -53,5 +53,6 @@ public sealed class GroupPageStepDefinitions(Actor actor) : StepDefinitionBase(a
 
     [Then("the page no longer lists {word}")]
     public async Task ThenPageNoLongerLists(string name) =>
-        await Assert.That(await Actor.AsksForAsync(new TheParticipantOnThePage(name))).IsNull();
+        await Assert.That(await Actor.AsksForAsync(new TheParticipantIsGoneFromThePage(name))).IsTrue()
+            .Because($"{name} is still listed on the page");
 }
