@@ -130,7 +130,7 @@ public sealed class GroupViewStepDefinitions(Actor actor) : StepDefinitionBase(a
         return participant!;
     }
 
-    private static Dictionary<string, int> ExpectedDishes(DataTable table, IReadOnlyList<string> menuIds) =>
+    private static Dictionary<string, int> ExpectedDishes(DataTable table, List<string> menuIds) =>
         table.Rows.ToDictionary(
             row => menuIds[DishNumber.Parse(row["dish"]).Index],
             row => int.Parse(row["portions"], System.Globalization.CultureInfo.InvariantCulture));

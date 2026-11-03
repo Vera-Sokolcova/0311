@@ -31,11 +31,11 @@ public sealed class ConfirmTheGroupPreOrder(Viewer who, string owner) : ITask
 }
 
 /// <summary>Confirms a group pre-order for a group that does not exist.</summary>
-public sealed class ConfirmAGroupThatDoesNotExist(Viewer who, string owner) : ITask
+public sealed class ConfirmAGroupThatDoesNotExist(Viewer who) : ITask
 {
     public async Task PerformAsAsync(Actor actor) =>
         await actor.TheLastResponse().CaptureAsync(await new GroupsApi(actor.UsingTheApi())
-            .SubmitGroupAsync("does-not-exist", actor.TheCast().GroupOf(owner).ReservationId, await who.BearerAsync(actor)));
+            .SubmitGroupAsync("does-not-exist", "does-not-exist", await who.BearerAsync(actor)));
 }
 
 /// <summary>Removes a guest from the group of <paramref name="owner"/> (the guest may belong to another group).</summary>
