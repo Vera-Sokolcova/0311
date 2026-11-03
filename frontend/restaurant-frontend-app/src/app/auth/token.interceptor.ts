@@ -11,6 +11,11 @@ import { AuthenticationService } from './services/authentication.service';
 import { SKIP_ERROR_TOAST } from './skip-error-toast.context';
 import { getServerErrorMessage } from '../shared/helpers/http-error-helpers';
 
+/** Guest-area routes that belong to the signed-in owner of the reservation. */
+function isOwnerGuestRoute(url: string): boolean {
+  return /\/guest\/groups\/[^/]+\/sessions(\/|$|\?)/.test(url) || /\/guest\/invites\//.test(url);
+}
+
 export const tokenInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
@@ -21,7 +26,14 @@ export const tokenInterceptor: HttpInterceptorFn = (
   // Guest flow uses a different token (guest session token) and we must not touch the body.
   // Otherwise we break POST /guest/sessions payload.
   if (req.url.includes('/guest/')) {
-    return next(req).pipe(
+    // Exception: the reservation owner's own views (group sessions, invite lookup) are authorised
+    // by the owner's login token, so it is attached to those routes (and only to them).
+    const ownerToken = isOwnerGuestRoute(req.url) ? inject(AuthenticationService).getTokens()?.idToken : undefined;
+    const guestRequest = ownerToken
+      ? req.clone({ setHeaders: { Authorization: 'Bearer ' + ownerToken } })
+      : req;
+
+    return next(guestRequest).pipe(
       catchError((error: HttpErrorResponse) => {
         console.log(error);
 

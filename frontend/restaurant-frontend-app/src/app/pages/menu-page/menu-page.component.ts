@@ -10,6 +10,8 @@ import { DishSortingLabels, DishTypeLabels } from '@app/shared/mappers/dish-enum
 import { DishModalComponent } from '@app/components/dish-modal/dish-modal.component';
 import { PreOrdersService } from '@app/services/pre-orders/pre-orders.service';
 import {ToastService} from '@app/services/toast/toast.service';
+import { getServerErrorMessage } from '@app/shared/helpers/http-error-helpers';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-menu-page',
@@ -146,7 +148,7 @@ export class MenuPageComponent implements OnInit {
           this.toast.success('Dish added to cart successfully!', 'Success');
         },
         error: (err) => {
-          this.toast.error((err as Error).message, 'Error');
+          this.toast.error(getServerErrorMessage(err as HttpErrorResponse) || (err as Error).message, 'Error');
         },
       });
   }

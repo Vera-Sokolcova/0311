@@ -154,9 +154,7 @@ export class CardReservationComponent {
     const startTime = new Date(reservation.startTime);
     const endTime = new Date(reservation.endTime);
 
-    const tableLabel =
-      reservation.tableName ||
-      `Table ${reservation.tableId}`;
+    const tableLabel = reservation.tableName || this.displayedTableLabel();
 
     const queryParams: Params = {
       preOrder: 'true',
@@ -224,7 +222,7 @@ export class CardReservationComponent {
       reservationId: reservation.id,
       createdByName: this.creatorName(),
       createdByRole: this.creatorRole(),
-      tableName: reservation.tableName || 'Unknown table',
+      tableName: reservation.tableName || this.displayedTableLabel(),
     };
 
     sessionStorage.setItem(

@@ -12,10 +12,11 @@ describe('tokenInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
   let toastService: jasmine.SpyObj<ToastService>;
+  let authService: jasmine.SpyObj<AuthenticationService>;
 
   beforeEach(() => {
     toastService = jasmine.createSpyObj<ToastService>('ToastService', ['error']);
-    const authService = jasmine.createSpyObj<AuthenticationService>('AuthenticationService', [
+    authService = jasmine.createSpyObj<AuthenticationService>('AuthenticationService', [
       'getTokens',
     ]);
     authService.getTokens.and.returnValue(null);
@@ -59,5 +60,36 @@ describe('tokenInterceptor', () => {
 
     expect(toastService.error).not.toHaveBeenCalled();
     expect(receivedStatus).toBe(400);
+  });
+
+  describe('guest routes', () => {
+    const tokens = { idToken: 'owner-id-token' } as ReturnType<AuthenticationService['getTokens']>;
+
+    it('sends the owner login token to the group sessions route', () => {
+      authService.getTokens.and.returnValue(tokens);
+      http.get('https://test.api/guest/groups/group-1/sessions').subscribe();
+
+      const req = httpMock.expectOne('https://test.api/guest/groups/group-1/sessions');
+      expect(req.request.headers.get('Authorization')).toBe('Bearer owner-id-token');
+      req.flush({});
+    });
+
+    it('sends the owner login token to the invite lookup route', () => {
+      authService.getTokens.and.returnValue(tokens);
+      http.get('https://test.api/guest/invites/abc').subscribe();
+
+      const req = httpMock.expectOne('https://test.api/guest/invites/abc');
+      expect(req.request.headers.get('Authorization')).toBe('Bearer owner-id-token');
+      req.flush({});
+    });
+
+    it('does not touch other guest routes', () => {
+      authService.getTokens.and.returnValue(tokens);
+      http.post('https://test.api/guest/sessions', {}).subscribe();
+
+      const req = httpMock.expectOne('https://test.api/guest/sessions');
+      expect(req.request.headers.has('Authorization')).toBeFalse();
+      req.flush({});
+    });
   });
 });
