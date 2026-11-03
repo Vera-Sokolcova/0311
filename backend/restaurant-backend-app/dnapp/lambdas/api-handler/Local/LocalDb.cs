@@ -28,6 +28,7 @@ public sealed class LocalDb
     public ConcurrentDictionary<string, Notification> Notifications { get; } = new();
     public ConcurrentDictionary<string, Feedback> Feedbacks { get; } = new();
     public ConcurrentDictionary<string, WaiterListItem> Waiters { get; } = new();
+    public ConcurrentDictionary<string, ProfileImage> ProfileImages { get; } = new();
 
     public LocalDb() => Seed();
 

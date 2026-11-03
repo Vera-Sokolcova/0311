@@ -33,7 +33,7 @@ public static class LocalServices
 
         s.AddSingleton(LocalCognitoProxy.Create(Auth));
         s.AddSingleton(NotSupportedProxy.Create<IAmazonDynamoDB>());
-        s.AddSingleton(NotSupportedProxy.Create<IDynamoDBContext>());
+        s.AddSingleton(InMemoryDynamoContextProxy.Create(Db));
         s.AddSingleton(NotSupportedProxy.Create<IAmazonS3>());
         s.AddSingleton(NotSupportedProxy.Create<IAmazonSQS>());
 
