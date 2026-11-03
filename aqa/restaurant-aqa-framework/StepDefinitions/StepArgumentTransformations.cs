@@ -1,4 +1,5 @@
 using Restaurant_Aqa_Framework.Api.Dtos.Dishes;
+using Restaurant_Aqa_Framework.Screenplay;
 using Restaurant_Aqa_Framework.Support;
 
 namespace Restaurant_Aqa_Framework.StepDefinitions;
@@ -74,6 +75,17 @@ public static class StepArgumentTransformations
 
     [StepArgumentTransformation(Name = "information", Regex = "(dish catalog|popular dishes|list of locations)")]
     public static string ToInformation(string value) => value;
+
+    [StepArgumentTransformation(Name = "ordinal", Regex = "(first|second|third)")]
+    public static DishNumber ToDishNumber(string value) => DishNumber.Parse(value);
+
+    [StepArgumentTransformation(Name = "viewer", Regex = "(the waiter|someone who is not signed in|[A-Z][a-z]+)")]
+    public static Viewer ToViewer(string value) => value switch
+    {
+        "the waiter" => Viewer.Waiter,
+        "someone who is not signed in" => Viewer.Nobody,
+        _ => Viewer.Named(value),
+    };
 
     [StepArgumentTransformation]
     public static Fields ToFields(DataTable table) => Fields.From(table);

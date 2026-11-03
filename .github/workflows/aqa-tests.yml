@@ -7,10 +7,11 @@ on:
         description: "Which scenarios to run"
         type: choice
         options:
+          - group
           - all
           - ui
           - api
-        default: all
+        default: group
       custom_filter:
         description: >
           Optional Microsoft.Testing.Platform tree filter (overrides "scope" when set), e.g.
@@ -95,6 +96,20 @@ jobs:
             echo "$name: set"
           done
 
+      # The free backend host puts the service to sleep when idle and needs up to a few minutes to wake up.
+      # Wait for it here so the first scenarios do not fail on a cold start.
+      - name: Wake up the backend
+        shell: bash
+        run: |
+          if [ -z "${API_URL:-}" ]; then echo "API_URL is not set"; exit 1; fi
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "${API_URL%/}/locations" || true)
+            echo "attempt $i: HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 10
+          done
+          echo "The backend did not wake up in time"; exit 1
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
@@ -110,10 +125,12 @@ jobs:
         shell: bash
         run: |
           custom_filter="${{ inputs.custom_filter }}"
-          scope="${{ inputs.scope || 'all' }}"
+          scope="${{ inputs.scope || 'group' }}"
 
           if [ -n "$custom_filter" ]; then
             filter="$custom_filter"
+          elif [ "$scope" = "group" ]; then
+            filter="/*/*/*/*[Category=group-preorder]"
           elif [ "$scope" = "ui" ]; then
             filter="/*/*/*/*[Category=ui]"
           elif [ "$scope" = "api" ]; then
@@ -179,7 +196,7 @@ jobs:
       - name: Write job summary
         if: always()
         env:
-          SCOPE: ${{ inputs.scope || 'all' }}
+          SCOPE: ${{ inputs.scope || 'group' }}
           FILTER: ${{ steps.filter.outputs.filter }}
           RUN_OUTCOME: ${{ steps.run_tests.outcome }}
         run: |

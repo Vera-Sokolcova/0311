@@ -75,6 +75,14 @@ public static class SampleDataFactory
             Capacity: capacity ?? Faker.Random.Int(2, 8),
             TableNumber: Faker.Random.Int(100, 999));
 
+    /// <summary>A start time on a random day 2-90 days ahead, 10:00-19:45 UTC in quarter-hour steps, so parallel
+    /// scenarios booking the same table rarely collide (the booking task retries when they do).</summary>
+    public static DateTime FutureSlotStart() =>
+        DateTime.UtcNow.Date
+            .AddDays(Faker.Random.Int(2, 90))
+            .AddHours(Faker.Random.Int(10, 19))
+            .AddMinutes(15 * Faker.Random.Int(0, 3));
+
     public static CreateReservationRequest CreateReservationRequest(
         string tableId, DateTime startTime, int guestCount = 2) =>
         new(

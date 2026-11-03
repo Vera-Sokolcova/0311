@@ -49,4 +49,43 @@ public sealed class OutcomeStepDefinitions(Actor actor) : StepDefinitionBase(act
         var outcome = await Actor.AsksForAsync(new TheOutcome());
         await Assert.That(outcome.Succeeded).IsTrue().Because($"response status {outcome.Status}, body: {outcome.Body}");
     }
+
+    // ---- group pre-order ----
+
+    [Then("the request is refused because only the owner may do it")]
+    public async Task ThenRefusedNotOwner() => await AssertStatusAsync(403);
+
+    [Then("the request is refused because nobody is signed in")]
+    [Then("the request is refused because a guest has no account")]
+    public async Task ThenRefusedNotSignedIn() => await AssertStatusAsync(401);
+
+    [Then("the group cannot be found")]
+    public async Task ThenGroupNotFound() => await AssertStatusAsync(404);
+
+    [Then("the participant cannot be found")]
+    public async Task ThenParticipantNotFound() => await AssertStatusAsync(404);
+
+    [Then("the participant is refused because they belong to another group")]
+    public async Task ThenParticipantOfAnotherGroup() => await AssertStatusAsync(400);
+
+    [Then("the pre-order is refused because it was already sent")]
+    public async Task ThenAlreadySent() => await AssertStatusAsync(409);
+
+    [Then("the pre-order is refused with {string}")]
+    public async Task ThenPreOrderRefusedWith(string message)
+    {
+        var outcome = await Actor.AsksForAsync(new TheOutcome());
+        await Assert.That(outcome.Status).IsEqualTo(400).Because($"response body was: {outcome.Body}");
+        await Assert.That(outcome.Body).Contains(message);
+    }
+
+    [Then("the pre-order is sent to the restaurant")]
+    [Then("the participant is removed")]
+    public async Task ThenSucceeded() => await AssertStatusAsync(200);
+
+    private async Task AssertStatusAsync(int status)
+    {
+        var outcome = await Actor.AsksForAsync(new TheOutcome());
+        await Assert.That(outcome.Status).IsEqualTo(status).Because($"response body was: {outcome.Body}");
+    }
 }
