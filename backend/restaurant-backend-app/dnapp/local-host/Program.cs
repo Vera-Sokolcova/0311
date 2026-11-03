@@ -13,13 +13,21 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 var app = builder.Build();
-var function = new global::APIHandler.Function();
+var function = new Function();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.Map("/{**path}", async (HttpContext http) =>
 {
     var req = http.Request;
+    if (HttpMethods.IsOptions(req.Method))
+    {
+        http.Response.Headers["Access-Control-Allow-Origin"] = "*";
+        http.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+        http.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
+        http.Response.StatusCode = 204;
+        return;
+    }
     string body;
     using (var reader = new StreamReader(req.Body, Encoding.UTF8))
         body = await reader.ReadToEndAsync();
@@ -56,7 +64,7 @@ app.Map("/{**path}", async (HttpContext http) =>
         http.Response.Headers[h.Key] = h.Value;
     http.Response.Headers["Access-Control-Allow-Origin"] = "*";
     http.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
-    http.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
+    http.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
 
     if (!string.IsNullOrEmpty(response.Body))
     {
