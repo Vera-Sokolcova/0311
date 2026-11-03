@@ -55,7 +55,7 @@ public class UpdateReservationStatusHandler : IApiRequestHandler
         }
 
         bool isCompleted = updateRequest.NewStatus == ReservationStatus.Completed;
-        if (isCompleted && !HasFeedback(reservationId!)) // When we'll implement order placement, add check for orders.
+        if (isCompleted && !HasFeedback(reservationId!) && !HasOrder(reservationId!))
         {
             return ResponseBuilder.CreateErrorResponse(
                 400,
@@ -78,8 +78,16 @@ public class UpdateReservationStatusHandler : IApiRequestHandler
             return ResponseBuilder.CreateSuccessResponse("Reservation status updated successfully.");
         }
 
-        var report = await _reportService.GenerateReportAsync(reservationId!);
-        await _reportService.SendReportToSqsAsync(report);
+        // The report is a side effect: the status is already saved, so a reporting failure must not fail the request.
+        try
+        {
+            var report = await _reportService.GenerateReportAsync(reservationId!);
+            await _reportService.SendReportToSqsAsync(report);
+        }
+        catch (Exception exception)
+        {
+            context.Logger.LogLine($"Report for reservation {reservationId} was not sent: {exception.Message}");
+        }
 
 
         return ResponseBuilder.CreateSuccessResponse("Reservation status updated successfully.");
