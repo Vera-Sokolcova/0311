@@ -225,6 +225,46 @@ public class GroupPreOrderServiceTests
     }
 
     [Fact]
+    public async Task Submit_WithComment_StoresTrimmedCommentOnTheOrder()
+    {
+        SetupSessions(MakeSession("s1", true, ("dish1", 1)));
+        var order = new Order
+        {
+            OrderId = "o1", CustomerId = OwnerId, ReservationId = ReservationId,
+            ReservationAddress = "a", ReservationTime = "t", Dishes = [], Status = OrderStatus.Created,
+        };
+        _orders.Setup(r => r.GetOrderByReservationIdAsync(ReservationId)).ReturnsAsync(order);
+
+        await _service.SubmitGroupPreOrderAsync(OwnerId, GroupId, ReservationId, "  No nuts, please  ");
+
+        Assert.Equal("No nuts, please", order.Comment);
+    }
+
+    [Fact]
+    public async Task Submit_BlankComment_LeavesTheOrderWithoutComment()
+    {
+        SetupSessions(MakeSession("s1", true, ("dish1", 1)));
+        var order = new Order
+        {
+            OrderId = "o1", CustomerId = OwnerId, ReservationId = ReservationId,
+            ReservationAddress = "a", ReservationTime = "t", Dishes = [], Status = OrderStatus.Created,
+        };
+        _orders.Setup(r => r.GetOrderByReservationIdAsync(ReservationId)).ReturnsAsync(order);
+
+        await _service.SubmitGroupPreOrderAsync(OwnerId, GroupId, ReservationId, "   ");
+
+        Assert.Null(order.Comment);
+    }
+
+    [Fact]
+    public async Task Submit_CommentLongerThanLimit_ThrowsValidation()
+    {
+        SetupSessions(MakeSession("s1", true, ("dish1", 1)));
+        await Assert.ThrowsAsync<ValidationException>(
+            () => _service.SubmitGroupPreOrderAsync(OwnerId, GroupId, ReservationId, new string('a', 301)));
+    }
+
+    [Fact]
     public async Task Submit_NoSubmittedSessions_ThrowsValidation()
     {
         SetupSessions(MakeSession("s1", false, ("dish1", 1)));

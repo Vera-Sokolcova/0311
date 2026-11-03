@@ -111,6 +111,16 @@
         Dishes of {{ notSubmittedCount() }} participant(s) who haven’t submitted won’t be included.
       }
     </p>
+    <label class="comment-label" for="preorder-comment">Comment for the restaurant (optional)</label>
+    <textarea
+      id="preorder-comment"
+      class="comment-input"
+      rows="3"
+      [attr.maxlength]="maxCommentLength"
+      placeholder="e.g. no nuts, please"
+      [value]="comment()"
+      (input)="onCommentInput($event)"
+    ></textarea>
     <div modal-actions class="dialog-actions">
       <button type="button" class="button button--tertiary" [disabled]="submitting()" (click)="closeSubmitDialog()">
         Cancel

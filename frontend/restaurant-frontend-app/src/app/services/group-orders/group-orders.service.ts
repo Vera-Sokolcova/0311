@@ -6,7 +6,7 @@ import { SKIP_ERROR_TOAST } from '@app/auth/skip-error-toast.context';
 import { GroupSessionsResponse } from '@app/models/group-orders/group-sessions-response.model';
 import { GroupStatusResponse } from '@app/models/group-orders/group-status.model';
 import { OwnerSessionResponse } from '@app/models/group-orders/owner-session.model';
-import { SubmittedDish } from '@app/models/group-orders/submit-group-pre-order.model';
+import { SubmitGroupPreOrderRequest, SubmittedDish } from '@app/models/group-orders/submit-group-pre-order.model';
 import { GuestInvite } from '@app/models/reservations/guest-invite.model';
 import { GuestInviteService } from '@app/services/reservation/guest-invite.service';
 import { API_BASE_URL } from '@app/shared/config/api-base-url.token';
@@ -47,10 +47,11 @@ export class GroupOrdersService {
       .pipe(map((response) => response.guestSessionId));
   }
 
-  submit$(groupReservationId: string, reservationId: string): Observable<SubmittedDish[]> {
+  submit$(groupReservationId: string, reservationId: string, comment?: string): Observable<SubmittedDish[]> {
+    const body: SubmitGroupPreOrderRequest = comment ? { reservationId, comment } : { reservationId };
     return this.http.post<SubmittedDish[]>(
       `${this.baseUrl}/group-reservations/${groupReservationId}/submit`,
-      { reservationId }
+      body
     );
   }
 

@@ -24,4 +24,7 @@ public class GetOrderResponse
 
     [JsonPropertyName("status")]
     public OrderStatus Status { get; set; }
+
+    [JsonPropertyName("comment")]
+    public string? Comment { get; set; }
 }

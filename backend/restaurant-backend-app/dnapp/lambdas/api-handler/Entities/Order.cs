@@ -38,4 +38,9 @@ public class Order
     [DynamoDBProperty("status", typeof(EnumAsIntConverter<OrderStatus>))]
     [JsonPropertyName("status")]
     public OrderStatus Status { get; set; }
+
+    /// <summary>A wish of the customer for the kitchen and the waiter ("no nuts"), set when a group pre-order is sent.</summary>
+    [DynamoDBProperty("comment")]
+    [JsonPropertyName("comment")]
+    public string? Comment { get; set; }
 }

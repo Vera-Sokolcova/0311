@@ -55,6 +55,14 @@ public sealed class GroupStepDefinitions(Actor actor) : StepDefinitionBase(actor
     public Task OwnerConfirmsTheGroup(string owner) =>
         Actor.AttemptsToAsync(new ConfirmTheGroupPreOrder(Viewer.Named(owner), owner));
 
+    [When("{word} confirms the group pre-order with the comment {string}")]
+    public Task OwnerConfirmsTheGroupWithAComment(string owner, string comment) =>
+        Actor.AttemptsToAsync(new ConfirmTheGroupPreOrder(Viewer.Named(owner), owner, comment));
+
+    [When("{word} confirms the group pre-order with a comment of {int} characters")]
+    public Task OwnerConfirmsTheGroupWithALongComment(string owner, int length) =>
+        Actor.AttemptsToAsync(new ConfirmTheGroupPreOrder(Viewer.Named(owner), owner, new string('a', length)));
+
     [Given("{word} has confirmed the group pre-order")]
     public Task GivenOwnerConfirmedTheGroup(string owner) =>
         Actor.AttemptsToAsync(new ConfirmTheGroupPreOrder(Viewer.Named(owner), owner));

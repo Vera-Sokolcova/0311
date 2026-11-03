@@ -40,7 +40,8 @@ public sealed record GroupParticipantResponse(
 /// <summary>GET /guest/groups/{id}/sessions, and the answer to removing a participant.</summary>
 public sealed record GroupSessionsResponse(IReadOnlyList<GroupParticipantResponse> Participants, decimal Total);
 
-public sealed record SubmitGroupRequest(string ReservationId);
+/// <summary>Body of confirming the group pre-order; the comment (up to 300 characters) is for the restaurant.</summary>
+public sealed record SubmitGroupRequest(string ReservationId, string? Comment = null);
 
 /// <summary>One dish of the consolidated list the owner's confirmation returns.</summary>
 public sealed record ConsolidatedDishResponse(string DishId, int Quantity);

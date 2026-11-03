@@ -116,6 +116,10 @@ public sealed class GroupViewStepDefinitions(Actor actor) : StepDefinitionBase(a
             await Assert.That(actual.GetValueOrDefault(dishId)).IsEqualTo(portions);
     }
 
+    [Then("the waiter sees the comment {string}")]
+    public async Task ThenWaiterSeesTheComment(string comment) =>
+        await Assert.That((await Actor.AsksForAsync(new TheResponseAs<GetOrderResponse>())).Comment).IsEqualTo(comment);
+
     [Then("the waiter sees the order as confirmed by the customer")]
     public async Task ThenOrderConfirmedByCustomer() =>
         await Assert.That((await Actor.AsksForAsync(new TheResponseAs<GetOrderResponse>())).Status)

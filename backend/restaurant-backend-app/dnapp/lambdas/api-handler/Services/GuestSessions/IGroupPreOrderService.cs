@@ -17,5 +17,5 @@ public interface IGroupPreOrderService
     /// Merges dishes of all submitted sessions by dishId, adds them to the order,
     /// sets order status to SubmittedByCustomer and group status to Submitted.
     /// </summary>
-    Task<IReadOnlyList<ConsolidatedDishResponse>> SubmitGroupPreOrderAsync(string userId, string groupReservationId, string reservationId);
+    Task<IReadOnlyList<ConsolidatedDishResponse>> SubmitGroupPreOrderAsync(string userId, string groupReservationId, string reservationId, string? comment = null);
 }

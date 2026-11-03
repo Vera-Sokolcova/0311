@@ -45,6 +45,25 @@ Feature: Confirming the consolidated group pre-order
         | second dish | 2        |
         | third dish  | 1        |
 
+  Rule: The owner can leave a comment for the restaurant
+
+    @api @l2
+    Scenario: The waiter sees the comment of the owner
+      Given Ivan has joined the group of Olena
+      And Ivan has put 1 portion of the second dish into the cart
+      And Ivan has confirmed the cart
+      When Olena confirms the group pre-order with the comment "No nuts, please"
+      And the waiter opens the pre-order of Olena
+      Then the waiter sees the comment "No nuts, please"
+
+    @api @l2 @negative
+    Scenario: A comment that is too long is refused
+      Given Ivan has joined the group of Olena
+      And Ivan has put 1 portion of the second dish into the cart
+      And Ivan has confirmed the cart
+      When Olena confirms the group pre-order with a comment of 301 characters
+      Then the pre-order is refused with "Comment cannot exceed 300 characters."
+
   Rule: A pre-order without confirmed dishes cannot be confirmed
 
     @api @l2 @negative

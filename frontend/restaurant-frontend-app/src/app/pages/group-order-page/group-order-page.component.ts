@@ -50,6 +50,8 @@ export class GroupOrderPageComponent implements OnInit {
 
   readonly submitDialogOpen = signal(false);
   readonly submitting = signal(false);
+  readonly comment = signal('');
+  readonly maxCommentLength = 300;
   readonly participantToRemove = signal<Participant | null>(null);
   readonly removing = signal(false);
 
@@ -149,6 +151,10 @@ export class GroupOrderPageComponent implements OnInit {
     }
   }
 
+  onCommentInput(event: Event): void {
+    this.comment.set((event.target as HTMLTextAreaElement).value);
+  }
+
   closeSubmitDialog(): void {
     if (!this.submitting()) {
       this.submitDialogOpen.set(false);
@@ -162,7 +168,7 @@ export class GroupOrderPageComponent implements OnInit {
 
     this.submitting.set(true);
     this.groupOrdersService
-      .submit$(this.groupReservationId, this.reservationId)
+      .submit$(this.groupReservationId, this.reservationId, this.comment().trim() || undefined)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

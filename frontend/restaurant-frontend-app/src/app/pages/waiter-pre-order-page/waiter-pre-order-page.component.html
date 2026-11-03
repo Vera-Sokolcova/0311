@@ -9,6 +9,9 @@
     reservationTime
   }})
 </h2>
+@if (comment) {
+  <p class="order-comment"><strong>Customer's comment:</strong> {{ comment }}</p>
+}
 <div class="preorder-list">
   @for (item of orderItems; track item.dish.id) {
     <app-dish-card

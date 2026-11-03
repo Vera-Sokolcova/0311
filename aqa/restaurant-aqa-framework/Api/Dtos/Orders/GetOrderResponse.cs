@@ -6,4 +6,5 @@ public sealed record GetOrderResponse(
     string ReservationAddress,
     string ReservationTime,
     IReadOnlyList<OrderItemResponse> OrderItems,
-    OrderStatus Status);
+    OrderStatus Status,
+    string? Comment = null);

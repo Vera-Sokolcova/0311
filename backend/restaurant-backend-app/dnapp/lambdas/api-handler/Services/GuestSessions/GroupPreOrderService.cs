@@ -25,6 +25,7 @@ public class GroupPreOrderService(
     IUserRepository userRepository) : IGroupPreOrderService
 {
     private const string DefaultOwnerName = "Owner";
+    private const int MaxCommentLength = 300;
 
     public async Task<GetAllSessionsResponse> GetGroupSessionsAsync(string userId, string groupReservationId)
     {
@@ -70,8 +71,12 @@ public class GroupPreOrderService(
     }
 
     public async Task<IReadOnlyList<ConsolidatedDishResponse>> SubmitGroupPreOrderAsync(
-        string userId, string groupReservationId, string reservationId)
+        string userId, string groupReservationId, string reservationId, string? comment = null)
     {
+        string? cleanComment = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
+        if (cleanComment is { Length: > MaxCommentLength })
+            throw new ValidationException($"Comment cannot exceed {MaxCommentLength} characters.");
+
         GroupReservation group = await GetGroupAsync(groupReservationId);
         Reservation reservation = await GetReservationAsync(reservationId);
 
@@ -115,6 +120,8 @@ public class GroupPreOrderService(
         }
 
         order.Status = OrderStatus.SubmittedByCustomer;
+        if (cleanComment is not null)
+            order.Comment = cleanComment;
         await orderRepository.SaveOrderAsync(order);
 
         group.Status = GroupReservationStatus.Submitted;

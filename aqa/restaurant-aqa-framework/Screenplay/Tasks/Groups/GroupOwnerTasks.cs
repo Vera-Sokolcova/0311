@@ -20,13 +20,13 @@ public sealed class ViewAGroupThatDoesNotExist(Viewer who) : ITask
 }
 
 /// <summary>Confirms the owner's group pre-order, handing the consolidated order to the restaurant.</summary>
-public sealed class ConfirmTheGroupPreOrder(Viewer who, string owner) : ITask
+public sealed class ConfirmTheGroupPreOrder(Viewer who, string owner, string? comment = null) : ITask
 {
     public async Task PerformAsAsync(Actor actor)
     {
         var booking = actor.TheCast().GroupOf(owner);
         await actor.TheLastResponse().CaptureAsync(await new GroupsApi(actor.UsingTheApi())
-            .SubmitGroupAsync(booking.GroupId, booking.ReservationId, await who.BearerAsync(actor)));
+            .SubmitGroupAsync(booking.GroupId, booking.ReservationId, await who.BearerAsync(actor), comment));
     }
 }
 

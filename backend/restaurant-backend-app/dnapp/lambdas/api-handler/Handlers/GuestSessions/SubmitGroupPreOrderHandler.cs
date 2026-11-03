@@ -28,7 +28,7 @@ public class SubmitGroupPreOrderHandler(IGroupPreOrderService service) : IApiReq
 
         try
         {
-            var result = await service.SubmitGroupPreOrderAsync(userId, groupReservationId, body.ReservationId);
+            var result = await service.SubmitGroupPreOrderAsync(userId, groupReservationId, body.ReservationId, body.Comment);
             return ResponseBuilder.CreateJsonResponse(200, result);
         }
         catch (ActionForbiddenException ex)

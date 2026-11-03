@@ -137,3 +137,19 @@
   background: color.$neutral-0;
   color: color.$red-400;
 }
+
+.comment-label {
+  display: block;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.comment-input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid color.$neutral-400;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}

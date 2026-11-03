@@ -62,4 +62,11 @@ describe('Рівень 2 · GroupOrdersService', () => {
     expect(req.request.body).toEqual({ reservationId: 'res-1' });
     req.flush([]);
   });
+
+  it('submit$: додає comment у тіло, коли він є', () => {
+    service.submit$('grp-1', 'res-1', 'No nuts').subscribe();
+    const req = http.expectOne(`${BASE_URL}/group-reservations/grp-1/submit`);
+    expect(req.request.body).toEqual({ reservationId: 'res-1', comment: 'No nuts' });
+    req.flush([]);
+  });
 });

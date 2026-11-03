@@ -30,6 +30,7 @@ export class WaiterPreOrderPageComponent implements OnInit {
   createdByRole = '';
   tableName = '';
   reservationTime = '';
+  comment = '';
   @Input() customClass = '';
 
   private router = inject(Router);
@@ -68,6 +69,7 @@ export class WaiterPreOrderPageComponent implements OnInit {
 
         this.orderItems = order.orderItems ?? [];
         this.reservationTime = order.reservationTime || '';
+        this.comment = order.comment ?? '';
         // this.refreshOrder();
       })
       .catch((err) => {
