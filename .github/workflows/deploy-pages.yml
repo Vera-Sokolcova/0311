@@ -37,10 +37,10 @@ jobs:
         if: ${{ vars.BACKEND_URL != '' }}
         env:
           BACKEND_URL: ${{ vars.BACKEND_URL }}
-        run: npm run build -- --base-href "/${{ github.event.repository.name }}/"
+        run: npm run build -- --base-href "/"
       - name: Build demo on mocks (BACKEND_URL is not set)
         if: ${{ vars.BACKEND_URL == '' }}
-        run: npx ng build --configuration development --base-href "/${{ github.event.repository.name }}/"
+        run: npx ng build --configuration development --base-href "/"
       - name: SPA fallback for Pages
         run: cp dist/restaurant-frontend-app/browser/index.html dist/restaurant-frontend-app/browser/404.html
       - uses: actions/upload-pages-artifact@v3
